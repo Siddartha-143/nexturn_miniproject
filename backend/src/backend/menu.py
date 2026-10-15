@@ -17,12 +17,22 @@ def add_menu_item():
     price = data.get("price")
     category = data.get("category")
 
+    if isinstance(name, str):
+        name = name.strip()
+
+    if isinstance(category, str):
+        category = category.strip()
+
     if not name or price is None or not category:
         return jsonify({
             "error": "Name, price and category are required"
         }), 400
 
-    if not isinstance(price, (int, float)) or price <= 0:
+    if (
+        not isinstance(price, (int, float))
+        or isinstance(price, bool)
+        or price <= 0
+    ):
         return jsonify({"error": "Price must be a positive number"}), 400
 
     conn = sqlite3.connect("kitchen.db")
@@ -60,6 +70,7 @@ def get_menu():
     return jsonify(menu), 200
 
 
+# Get only available menu items
 @menu_bp.route("/menu/active", methods=["GET"])
 def get_active_menu():
     conn = sqlite3.connect("kitchen.db")
