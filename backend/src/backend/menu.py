@@ -53,6 +53,7 @@ def add_menu_item():
     }), 201
 
 
+
 # Get all menu items
 @menu_bp.route("/menu", methods=["GET"])
 def get_menu():
@@ -60,7 +61,7 @@ def get_menu():
     conn.row_factory = sqlite3.Row
 
     items = conn.execute(
-        "SELECT * FROM menu_items"
+        "SELECT * FROM menu_items ORDER BY id ASC"
     ).fetchall()
 
     conn.close()
@@ -77,7 +78,7 @@ def get_active_menu():
     conn.row_factory = sqlite3.Row
 
     items = conn.execute(
-        "SELECT * FROM menu_items WHERE available = 1"
+        "SELECT * FROM menu_items WHERE available = 1 ORDER BY id ASC"
     ).fetchall()
 
     conn.close()
