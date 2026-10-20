@@ -87,6 +87,7 @@ def place_order():
     }), 201
 
 
+
 # Get order details
 @orders_bp.route("/orders/<int:order_id>", methods=["GET"])
 def get_order(order_id):
@@ -103,7 +104,11 @@ def get_order(order_id):
         return jsonify({"error": "Order not found"}), 404
 
     items = conn.execute("""
-        SELECT menu_items.name, order_items.quantity, order_items.price
+        SELECT
+            menu_items.name,
+            order_items.quantity,
+            order_items.price,
+            order_items.quantity * order_items.price AS subtotal
         FROM order_items
         JOIN menu_items ON menu_items.id = order_items.menu_item_id
         WHERE order_items.order_id = ?
