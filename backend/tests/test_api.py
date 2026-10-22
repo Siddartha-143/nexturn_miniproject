@@ -107,3 +107,18 @@ def test_order_status_progression(client):
         f"/api/orders/{order_id}/status"
     )
     assert response.status_code == 400
+
+
+def test_update_menu_availability(client):
+    add_menu_item(client)
+
+    response = client.patch(
+        "/api/menu/1/availability",
+        json={"available": False}
+    )
+
+    assert response.status_code == 200
+    assert response.json["available"] is False
+
+    response = client.get("/api/menu/active")
+    assert len(response.json) == 0
