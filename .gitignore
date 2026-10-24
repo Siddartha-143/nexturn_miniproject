@@ -32,3 +32,12 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Frontend environment variables
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Build and test artifacts
+frontend/coverage/
+*.log
