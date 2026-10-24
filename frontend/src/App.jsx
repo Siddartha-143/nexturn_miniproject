@@ -58,9 +58,8 @@ function App() {
 
   for (const item of menu) {
     const quantity = quantities[item.id] || 0
-
-    total = total + Number(item.price) * quantity
-    itemCount = itemCount + quantity
+    total += Number(item.price) * quantity
+    itemCount += quantity
   }
 
   async function placeOrder() {
@@ -180,15 +179,34 @@ function App() {
 
         {order && (
           <section className="order-result">
-            <h2>Order Details</h2>
-            <p>
-              Order ID: {order.order_id ?? order.id ?? 'Created'}
+            <div className="order-success-icon">✓</div>
+
+            <h2>Order Placed Successfully!</h2>
+
+            <p className="order-thank-you">
+              Thank you! Your order has been received.
             </p>
-            <p>
-              Total: ₹
-              {Number(order.total ?? 0).toFixed(2)}
-            </p>
-            <p>Status: {order.status || 'Received'}</p>
+
+            <div className="order-detail-row">
+              <span>Order ID</span>
+              <strong>
+                #{order.order_id ?? order.id ?? 'Created'}
+              </strong>
+            </div>
+
+            <div className="order-detail-row">
+              <span>Total Amount</span>
+              <strong>
+                ₹{Number(order.total ?? 0).toFixed(2)}
+              </strong>
+            </div>
+
+            <div className="order-detail-row">
+              <span>Order Status</span>
+              <strong className="order-status">
+                {order.status || 'Received'}
+              </strong>
+            </div>
           </section>
         )}
       </main>
