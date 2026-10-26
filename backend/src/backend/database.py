@@ -35,6 +35,26 @@ def init_db():
         )
     """)
 
+    # Add sample menu items if the menu is empty
+    menu_count = conn.execute(
+        "SELECT COUNT(*) FROM menu_items"
+    ).fetchone()[0]
+
+    if menu_count == 0:
+        menu_items = [
+            ("Paneer Tikka", 180, "Appetizer"),
+            ("Chicken Biryani", 250, "Main Course"),
+            ("Vegetable Samosa", 60, "Appetizer"),
+            ("Masala Dosa", 120, "Main Course"),
+            ("Gulab Jamun", 80, "Dessert"),
+            ("Lime Soda", 50, "Beverage"),
+        ]
+
+        conn.executemany("""
+            INSERT INTO menu_items (name, price, category)
+            VALUES (?, ?, ?)
+        """, menu_items)
+
     conn.commit()
     conn.close()
 

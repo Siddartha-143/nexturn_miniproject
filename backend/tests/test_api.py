@@ -6,11 +6,24 @@ from backend.app import app
 from backend.database import init_db
 
 
+
+
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     # Use a separate database for every test
     monkeypatch.chdir(tmp_path)
     init_db()
+
+    # Clear sample data from the test database
+    conn = sqlite3.connect("kitchen.db")
+    conn.execute("DELETE FROM order_items")
+    conn.execute("DELETE FROM orders")
+    conn.execute("DELETE FROM menu_items")
+    conn.execute(
+        "DELETE FROM sqlite_sequence WHERE name = 'menu_items'"
+    )
+    conn.commit()
+    conn.close()
 
     app.config["TESTING"] = True
 
