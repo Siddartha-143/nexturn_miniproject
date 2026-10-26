@@ -206,3 +206,37 @@ main > h2 {
     padding: 20px;
   }
 }
+
+
+.order-status-button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 13px 18px;
+  border: none;
+  border-radius: 9px;
+  background: #294936;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.order-status-button:hover:not(:disabled) {
+  background: #3e684b;
+}
+
+.order-status-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.order-complete {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 9px;
+  background: #e2f3e4;
+  color: #246333;
+  text-align: center;
+  font-weight: bold;
+}

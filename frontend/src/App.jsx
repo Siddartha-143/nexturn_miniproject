@@ -10,6 +10,7 @@ function App() {
   const [message, setMessage] = useState('')
   const [order, setOrder] = useState(null)
   const [placingOrder, setPlacingOrder] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
 
   useEffect(() => {
     getMenu()
@@ -58,6 +59,7 @@ function App() {
 
   for (const item of menu) {
     const quantity = quantities[item.id] || 0
+
     total += Number(item.price) * quantity
     itemCount += quantity
   }
@@ -111,6 +113,45 @@ function App() {
       setError(error.message || 'Could not connect to the backend.')
     } finally {
       setPlacingOrder(false)
+    }
+  }
+
+  async function updateOrderStatus() {
+    const orderId = order?.order_id ?? order?.id
+
+    if (!orderId) {
+      setError('Order ID not found.')
+      return
+    }
+
+    try {
+      setError('')
+      setMessage('')
+      setUpdatingStatus(true)
+
+      const response = await fetch(
+        `http://127.0.0.1:5000/api/orders/${orderId}/status`,
+        {
+          method: 'PATCH',
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Could not update order status.')
+      }
+
+      setOrder((previousOrder) => ({
+        ...previousOrder,
+        ...data,
+      }))
+
+      setMessage('Order status updated successfully!')
+    } catch (error) {
+      setError(error.message || 'Could not update order status.')
+    } finally {
+      setUpdatingStatus(false)
     }
   }
 
@@ -207,6 +248,25 @@ function App() {
                 {order.status || 'Received'}
               </strong>
             </div>
+
+            {order.status !== 'Served' ? (
+              <button
+                type="button"
+                className="order-status-button"
+                onClick={updateOrderStatus}
+                disabled={updatingStatus}
+              >
+                {updatingStatus
+                  ? 'Updating Status...'
+                  : order.status === 'Received'
+                    ? 'Start Cooking'
+                    : 'Mark as Served'}
+              </button>
+            ) : (
+              <p className="order-complete">
+                Your order has been served!
+              </p>
+            )}
           </section>
         )}
       </main>
