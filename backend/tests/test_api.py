@@ -135,3 +135,30 @@ def test_update_menu_availability(client):
 
     response = client.get("/api/menu/active")
     assert len(response.json) == 0
+
+
+def test_reject_zero_quantity(client):
+    add_menu_item(client)
+
+    response = client.post("/api/orders", json={
+        "items": [
+            {"menu_item_id": 1, "quantity": 0}
+        ]
+    })
+
+    assert response.status_code == 400
+    assert "error" in response.json
+
+
+def test_reject_duplicate_menu_items(client):
+    add_menu_item(client)
+
+    response = client.post("/api/orders", json={
+        "items": [
+            {"menu_item_id": 1, "quantity": 1},
+            {"menu_item_id": 1, "quantity": 2}
+        ]
+    })
+
+    assert response.status_code == 400
+    assert response.json["error"] == "Duplicate menu items are not allowed"
