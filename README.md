@@ -2,21 +2,23 @@
 
 ## Project Overview
 
-The **On-Demand Kitchen Menu & Order Router** is a web application designed to manage kitchen menu items and customer orders. It provides APIs to manage menu items, check their availability, place orders, calculate order totals, and update order statuses.
+The **On-Demand Kitchen Menu & Order Router** is a web application for managing restaurant menu items and customer orders. Customers can view available dishes, select quantities, and place orders. Kitchen staff can view orders and update their status from Received to Cooking to Served.
 
 The project uses Flask for the backend, SQLite for database storage, and React for the frontend.
 
 ## Features
 
-- Add and view menu items.
-- Display only available menu items.
-- Update menu item availability without deleting it.
-- Place orders with multiple menu items.
+- View available menu items and their prices.
+- Add menu items through the API.
+- Update menu item availability.
+- Place orders containing multiple menu items.
 - Calculate order totals using database prices.
-- View order details, including item quantities, prices, and subtotals.
+- View order details, quantities, and subtotals.
+- Display all orders in the kitchen dashboard.
 - Update order status from `Received` to `Cooking` to `Served`.
-- Validate input and return appropriate API error responses.
-- Test backend functionality using pytest.
+- Validate order quantities and reject duplicate menu items.
+- Handle invalid requests with error responses.
+- Run automated backend tests using pytest.
 
 ## Technologies Used
 
@@ -24,7 +26,7 @@ The project uses Flask for the backend, SQLite for database storage, and React f
 |---|---|
 | Python | Backend programming |
 | Flask | REST API development |
-| SQLite | Database |
+| SQLite | Database storage |
 | React | Frontend development |
 | Vite | Frontend development server |
 | pytest | Backend testing |
@@ -58,42 +60,39 @@ kitchen_router/
 
 ## Prerequisites
 
-Install the following before running the project:
+Install the following:
 
-- Python 3.13 or a compatible version supported by the project.
+- Python 3.13 or a compatible version supported by the project
 - uv
 - Node.js and npm
 - Git
 
-## Backend Setup
+## Setup and Installation
 
-### 1. Open the backend directory
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Siddartha-143/nexturn_miniproject.git
+cd nexturn_miniproject
+```
+
+### 2. Start the backend
+
+Open a terminal in the project root:
 
 ```bash
 cd backend
-```
-
-### 2. Install dependencies
-
-```bash
 uv sync --dev
-```
-
-### 3. Start the Flask server
-
-```bash
 uv run python -m backend.app
 ```
 
-The backend runs at:
+The backend runs at `http://127.0.0.1:5000`.
 
-`http://127.0.0.1:5000`
+The application initializes the SQLite database when it starts.
 
-The database is initialized when the application starts.
+### 3. Start the frontend
 
-## Frontend Setup
-
-Open a second terminal from the project root and run:
+Open a second terminal in the project root:
 
 ```bash
 cd frontend
@@ -101,32 +100,46 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite in your terminal, usually:
+Open the local URL printed by Vite, usually `http://localhost:5173`.
 
-`http://localhost:5173`
+Keep both terminals running while using the application.
 
-*Note: The frontend is still being developed. Update this section if the startup command or application URL changes.*
+## Using the Application
+
+### Customer Menu
+
+1. Open the frontend in your browser.
+2. Browse the available menu items.
+3. Select quantities using the plus and minus buttons.
+4. Review the order total.
+5. Place the order.
+
+### Kitchen Dashboard
+
+1. Open the Kitchen Dashboard from the navigation.
+2. View orders grouped by `Received`, `Cooking`, and `Served`.
+3. Review each order's items, quantities, and total.
+4. Update the status as the order progresses.
 
 ## API Endpoints
 
-All endpoints use the base URL:
-
-`http://127.0.0.1:5000/api`
+Base URL: `http://127.0.0.1:5000/api`
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/health` | Check backend status |
 | POST | `/menu` | Add a menu item |
-| GET | `/menu` | Get all menu items |
+| GET | `/menu` | Get menu items |
 | GET | `/menu/active` | Get available menu items |
 | PATCH | `/menu/<item_id>/availability` | Update menu item availability |
 | POST | `/orders` | Place a new order |
-| GET | `/orders/<order_id>` | Get order details |
-| PATCH | `/orders/<order_id>/status` | Update order status |
+| GET | `/orders` | Get all orders for the kitchen dashboard |
+| GET | `/orders/<order_id>` | Get details of one order |
+| PATCH | `/orders/<order_id>/status` | Advance an order's status |
 
 ### Example: Add a Menu Item
 
-**POST** `/api/menu`
+`POST /api/menu`
 
 ```json
 {
@@ -138,7 +151,7 @@ All endpoints use the base URL:
 
 ### Example: Place an Order
 
-**POST** `/api/orders`
+`POST /api/orders`
 
 ```json
 {
@@ -151,11 +164,11 @@ All endpoints use the base URL:
 }
 ```
 
-The backend retrieves the item's price from the database and calculates the order total.
+The backend retrieves prices from the database and calculates the total.
 
 ### Example: Update Menu Availability
 
-**PATCH** `/api/menu/1/availability`
+`PATCH /api/menu/1/availability`
 
 ```json
 {
@@ -175,44 +188,42 @@ An order cannot advance beyond `Served`.
 
 ## Running Tests
 
-Run tests from the backend directory:
+Run the backend tests from the `backend` directory:
 
 ```bash
-cd backend
 uv run pytest -v
 ```
 
-The tests cover menu creation, active menu retrieval, order total calculation, unavailable menu items, order status progression, and menu availability updates.
+The current test suite covers menu creation, active menu retrieval, order totals, unavailable items, order status progression, menu availability, zero quantities, and duplicate menu items.
 
 ## Database
 
-The project uses SQLite with three main tables:
+The application uses SQLite with three tables:
 
-- `menu_items` — stores menu item names, prices, categories, and availability.
-- `orders` — stores order totals and statuses.
-- `order_items` — stores the menu items and quantities associated with each order.
+- `menu_items`: stores menu item names, prices, categories, and availability.
+- `orders`: stores order totals and statuses.
+- `order_items`: stores the menu items and quantities associated with each order.
 
 The local database is generated by the application and should not be committed to Git.
 
 ## Version Control
 
-The project is maintained using Git and GitHub. Changes are committed with descriptive messages to keep the development history clear.
+Git and GitHub are used to track project changes. Commits use descriptive messages to make the development history easier to understand.
 
 Example:
 
 ```bash
-git add .
-git commit -m "feat: add menu availability update API"
+git add README.md
+git commit -m "docs: improve project setup instructions"
 git push origin main
 ```
 
 ## Future Improvements
 
-- Complete the React frontend.
-- Improve input validation and automated test coverage.
-- Add a simple kitchen order dashboard.
-- Improve error handling and database management.
-- Add deployment configuration and documentation.
+- Add authentication for kitchen staff.
+- Improve automated test coverage.
+- Add deployment configuration.
+- Improve database management and error handling.
 
 ## Author
 
