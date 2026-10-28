@@ -162,3 +162,22 @@ def test_reject_duplicate_menu_items(client):
 
     assert response.status_code == 400
     assert response.json["error"] == "Duplicate menu items are not allowed"
+
+
+def test_reject_missing_order_items(client):
+    response = client.post("/api/orders", json={})
+
+    assert response.status_code == 400
+    assert response.json["error"] == "Please provide order items"
+
+
+def test_reject_invalid_json(client):
+    response = client.post(
+        "/api/orders",
+        data="invalid json",
+        content_type="application/json"
+    )
+
+    assert response.status_code == 400
+    assert response.json["error"] == "Please provide valid JSON"
+
