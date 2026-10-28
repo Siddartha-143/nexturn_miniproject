@@ -16,6 +16,17 @@ def place_order():
     if not isinstance(data.get("items"), list):
         return jsonify({"error": "Please provide order items"}), 400
 
+    table_number = data.get("table_number")
+
+    if (
+        not isinstance(table_number, int)
+        or isinstance(table_number, bool)
+        or table_number <= 0
+    ):
+        return jsonify({
+            "error": "Table number must be a positive integer"
+        }), 400
+
     items = data["items"]
 
     if not items:
@@ -81,12 +92,14 @@ def place_order():
 
             price = menu_item["price"]
             total += price * quantity
-
             order_items.append((menu_item_id, quantity, price))
 
         cursor = conn.execute(
-            "INSERT INTO orders (total, status) VALUES (?, ?)",
-            (total, "Received")
+            """
+            INSERT INTO orders (total, status, table_number)
+            VALUES (?, ?, ?)
+            """,
+            (total, "Received", table_number)
         )
 
         order_id = cursor.lastrowid
@@ -106,6 +119,7 @@ def place_order():
         return jsonify({
             "message": "Order placed successfully",
             "order_id": order_id,
+            "table_number": table_number,
             "total": round(total, 2),
             "status": "Received"
         }), 201
@@ -120,7 +134,7 @@ def place_order():
         conn.close()
 
 
-# Get order details
+# Get one order
 @orders_bp.route("/orders/<int:order_id>", methods=["GET"])
 def get_order(order_id):
     conn = sqlite3.connect("kitchen.db")
@@ -152,6 +166,7 @@ def get_order(order_id):
 
         return jsonify({
             "order_id": order["id"],
+            "table_number": order["table_number"],
             "total": order["total"],
             "status": order["status"],
             "items": [dict(item) for item in items]
@@ -197,6 +212,7 @@ def get_all_orders():
 
             result.append({
                 "order_id": order["id"],
+                "table_number": order["table_number"],
                 "total": order["total"],
                 "status": order["status"],
                 "items": [dict(item) for item in items]
@@ -211,6 +227,7 @@ def get_all_orders():
 
     finally:
         conn.close()
+
 
 # Update order status
 @orders_bp.route("/orders/<int:order_id>/status", methods=["PATCH"])

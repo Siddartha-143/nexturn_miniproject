@@ -60,6 +60,7 @@ def test_order_total(client):
     add_menu_item(client)
 
     response = client.post("/api/orders", json={
+        "table_number": 1,
         "items": [
             {"menu_item_id": 1, "quantity": 2}
         ]
@@ -94,6 +95,7 @@ def test_order_status_progression(client):
     add_menu_item(client)
 
     response = client.post("/api/orders", json={
+        "table_number": 1,
         "items": [
             {"menu_item_id": 1, "quantity": 1}
         ]
@@ -154,6 +156,7 @@ def test_reject_duplicate_menu_items(client):
     add_menu_item(client)
 
     response = client.post("/api/orders", json={
+        "table_number": 1,
         "items": [
             {"menu_item_id": 1, "quantity": 1},
             {"menu_item_id": 1, "quantity": 2}

@@ -19,9 +19,22 @@ def init_db():
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             total REAL NOT NULL,
-            status TEXT DEFAULT 'Received'
+            status TEXT DEFAULT 'Received',
+            table_number INTEGER
         )
     """)
+
+    # Add table_number to an existing database if needed
+    columns = conn.execute(
+        "PRAGMA table_info(orders)"
+    ).fetchall()
+
+    column_names = [column[1] for column in columns]
+
+    if "table_number" not in column_names:
+        conn.execute(
+            "ALTER TABLE orders ADD COLUMN table_number INTEGER"
+        )
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS order_items (

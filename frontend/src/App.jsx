@@ -8,6 +8,7 @@ function App() {
   const [page, setPage] = useState('customer')
   const [menu, setMenu] = useState([])
   const [quantities, setQuantities] = useState({})
+  const [tableNumber, setTableNumber] = useState('1')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -61,6 +62,7 @@ function App() {
       ...previous,
       [itemId]: newQuantity,
     }))
+
     setError('')
     setMessage('')
     setOrder(null)
@@ -99,11 +101,17 @@ function App() {
       const response = await fetch(`${API_URL}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({
+          table_number: Number(tableNumber),
+          items,
+        }),
       })
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Could not place order.')
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Could not place order.')
+      }
 
       setOrder(data)
       setMessage('Order placed successfully!')
@@ -126,7 +134,10 @@ function App() {
       )
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Could not update status.')
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Could not update status.')
+      }
 
       setOrders((previous) =>
         previous.map((item) =>
@@ -152,7 +163,11 @@ function App() {
     return (
       <article className="kitchen-order-card" key={item.order_id}>
         <div className="order-card-heading">
-          <h3>Order #{item.order_id}</h3>
+          <h3>
+            Order #{item.order_id} — Table{' '}
+            {item.table_number ?? 'Not assigned'}
+          </h3>
+
           <span className={`status-label status-${item.status.toLowerCase()}`}>
             {item.status}
           </span>
@@ -161,7 +176,9 @@ function App() {
         <ul className="kitchen-order-items">
           {item.items.map((food, index) => (
             <li key={`${food.name}-${index}`}>
-              <span>{food.name} × {food.quantity}</span>
+              <span>
+                {food.name} × {food.quantity}
+              </span>
               <span>₹{Number(food.subtotal).toFixed(2)}</span>
             </li>
           ))}
@@ -206,6 +223,7 @@ function App() {
           >
             Customer Menu
           </button>
+
           <button
             type="button"
             className={page === 'kitchen' ? 'nav-active' : ''}
@@ -226,6 +244,23 @@ function App() {
         {page === 'customer' ? (
           <>
             <h2>Available Menu</h2>
+
+            <div className="table-selector">
+              <label htmlFor="table-number">Select Table Number:</label>
+              <select
+                id="table-number"
+                value={tableNumber}
+                onChange={(event) => setTableNumber(event.target.value)}
+              >
+                {Array.from({ length: 20 }, (_, index) => index + 1).map(
+                  (table) => (
+                    <option key={table} value={table}>
+                      Table {table}
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
 
             {loading && <p>Loading menu...</p>}
 
@@ -248,7 +283,9 @@ function App() {
                     >
                       −
                     </button>
+
                     <span>{quantities[item.id] || 0}</span>
+
                     <button
                       type="button"
                       onClick={() => changeQuantity(item.id, 1)}
@@ -265,6 +302,7 @@ function App() {
               <h2>Order Summary</h2>
               <p>Items selected: {itemCount}</p>
               <h3>Total: ₹{total.toFixed(2)}</h3>
+
               <button
                 type="button"
                 onClick={placeOrder}
@@ -277,19 +315,30 @@ function App() {
             {order && (
               <section className="order-result">
                 <h2>Order Placed Successfully!</h2>
+
                 <div className="order-detail-row">
                   <span>Order ID</span>
                   <strong>#{order.order_id}</strong>
                 </div>
+
+                <div className="order-detail-row">
+                  <span>Table Number</span>
+                  <strong>Table {order.table_number}</strong>
+                </div>
+
                 <div className="order-detail-row">
                   <span>Total Amount</span>
                   <strong>₹{Number(order.total).toFixed(2)}</strong>
                 </div>
+
                 <div className="order-detail-row">
                   <span>Order Status</span>
                   <strong>{order.status}</strong>
                 </div>
-                <p>Use the Kitchen Dashboard to manage this order's status.</p>
+
+                <p>
+                  Use the Kitchen Dashboard to manage this order&apos;s status.
+                </p>
               </section>
             )}
           </>
@@ -300,6 +349,7 @@ function App() {
                 <h2>Kitchen Dashboard</h2>
                 <p>Track incoming orders and prepare them for serving.</p>
               </div>
+
               <button type="button" onClick={getOrders}>
                 Refresh Orders
               </button>
@@ -313,10 +363,14 @@ function App() {
 
                 return (
                   <section className="kitchen-column" key={status}>
-                    <h3>{status} ({statusOrders.length})</h3>
+                    <h3>
+                      {status} ({statusOrders.length})
+                    </h3>
 
                     {statusOrders.length === 0 ? (
-                      <p className="empty-orders">No {status.toLowerCase()} orders.</p>
+                      <p className="empty-orders">
+                        No {status.toLowerCase()} orders.
+                      </p>
                     ) : (
                       statusOrders.map(renderOrderCard)
                     )}

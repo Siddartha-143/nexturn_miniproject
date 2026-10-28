@@ -6,7 +6,7 @@ This project uses a Flask REST API to manage kitchen menu items and customer ord
 
 **Base URL:** `http://127.0.0.1:5000/api`
 
-The API supports adding menu items, checking availability, placing orders, viewing orders and updating order status.
+The API supports adding menu items, checking availability, placing orders for specific tables, viewing orders and updating order status.
 
 ## 2. API Endpoints
 
@@ -16,7 +16,7 @@ The API supports adding menu items, checking availability, placing orders, viewi
 | GET | `/menu/active` | Get available menu items |
 | POST | `/menu` | Add a menu item |
 | PATCH | `/menu/{item_id}/availability` | Update item availability |
-| POST | `/orders` | Place a new order |
+| POST | `/orders` | Place a new order with a table number |
 | GET | `/orders` | Get all orders |
 | GET | `/orders/{order_id}` | Get a specific order |
 | PATCH | `/orders/{order_id}/status` | Move an order to the next status |
@@ -117,14 +117,17 @@ Possible errors:
 
 **Endpoint:** `POST /api/orders`
 
+Places a new order for a selected table.
+
 Example request:
 
 ```json
 {
+  "table_number": 6,
   "items": [
     {
       "menu_item_id": 1,
-      "quantity": 2
+      "quantity": 1
     }
   ]
 }
@@ -135,45 +138,50 @@ Example response:
 ```json
 {
   "message": "Order placed successfully",
-  "order_id": 1,
-  "total": 360,
+  "order_id": 16,
+  "table_number": 6,
+  "total": 180,
   "status": "Received"
 }
 ```
 
 **Success status:** `201 Created`
 
-The total is calculated using the menu prices stored in the database.
+The backend calculates the total using the menu prices stored in the database. The table number is saved with the order and returned in the response.
 
 Validation rules:
 - The request must contain valid JSON.
-- The `items` field must be a non-empty list.
+- The `items` field must be a list containing at least one item.
+- `table_number` must be a positive integer.
 - Each item must have a valid positive integer menu item ID.
 - Quantity must be an integer between 1 and 100.
 - Duplicate menu item IDs are not allowed in one order.
 - Unavailable or nonexistent menu items cannot be ordered.
 
 Possible errors:
-- `400` — Invalid order details.
+- `400` — Invalid JSON, missing order items, invalid table number or invalid order details.
 - `500` — Database error while placing the order.
 
 ### 4.2 Get Order Details
 
-**Endpoint:** `GET /api/orders/1`
+**Endpoint:** `GET /api/orders/16`
+
+Returns the details of a specific order, including its table number, items, quantities, prices, total and current status.
 
 Example response:
 
 ```json
 {
-  "order_id": 1,
-  "total": 360,
+  "order_id": 16,
+  "table_number": 6,
+  "total": 180,
   "status": "Received",
   "items": [
     {
       "name": "Paneer Tikka",
-      "quantity": 2,
+      "quantity": 1,
       "price": 180,
-      "subtotal": 360
+      "subtotal": 180
     }
   ]
 }
@@ -189,37 +197,40 @@ Possible errors:
 
 **Endpoint:** `GET /api/orders`
 
-Returns all orders, newest first, with their items, totals and current statuses.
+Returns all orders, newest first, with their table numbers, items, totals and current statuses.
 
 Example response:
 
 ```json
 [
   {
-    "order_id": 1,
-    "total": 360,
+    "order_id": 16,
+    "table_number": 6,
+    "total": 180,
     "status": "Received",
     "items": [
       {
         "name": "Paneer Tikka",
-        "quantity": 2,
+        "quantity": 1,
         "price": 180,
-        "subtotal": 360
+        "subtotal": 180
       }
     ]
   }
 ]
 ```
 
+Older orders created before the table-number feature may have a `null` table number.
+
 **Success status:** `200 OK`
 
 **Error status:** `500` if orders cannot be retrieved.
 
-This endpoint is used by the kitchen dashboard.
+This endpoint is used by the kitchen dashboard to display orders and their table numbers.
 
 ### 4.4 Update Order Status
 
-**Endpoint:** `PATCH /api/orders/1/status`
+**Endpoint:** `PATCH /api/orders/16/status`
 
 This endpoint automatically advances the order to the next status. No request body is required.
 
@@ -232,7 +243,7 @@ Example response:
 ```json
 {
   "message": "Order status updated successfully",
-  "order_id": 1,
+  "order_id": 16,
   "status": "Cooking"
 }
 ```
@@ -264,14 +275,15 @@ Example PowerShell command to retrieve the active menu:
 Invoke-RestMethod -Uri "http://127.0.0.1:5000/api/menu/active"
 ```
 
-Example PowerShell command to place an order:
+Example PowerShell command to place an order for Table 6:
 
 ```powershell
 $body = @{
+    table_number = 6
     items = @(
         @{
             menu_item_id = 1
-            quantity = 2
+            quantity = 1
         }
     )
 } | ConvertTo-Json -Depth 5
@@ -289,6 +301,6 @@ The Flask backend must be running before these commands are executed.
 
 The Kitchen Menu & Order Router API connects the customer ordering interface with the kitchen dashboard.
 
-Customers can view available dishes and place orders, while kitchen staff can view incoming orders and move them through the preparation stages.
+Customers can view available dishes, select a table number and place orders. Kitchen staff can view incoming orders, identify the associated table and move orders through the preparation stages.
 
-The backend handles input validation, database operations and order status management.
+The backend handles input validation, database operations, order totals and order status management.
