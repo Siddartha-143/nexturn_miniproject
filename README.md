@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The **On-Demand Kitchen Menu & Order Router** is a web application for managing restaurant menu items and customer orders. Customers can view available dishes, select quantities, and place orders. Kitchen staff can view orders and update their status from Received to Cooking to Served.
+The **On-Demand Kitchen Menu & Order Router** is a web application for managing restaurant menu items and customer orders. Customers can browse available dishes, select quantities, choose a table number, and place orders. Kitchen staff can view orders and update their status from Received to Cooking to Served.
 
 The project uses Flask for the backend, SQLite for database storage, and React for the frontend.
 
@@ -11,9 +11,11 @@ The project uses Flask for the backend, SQLite for database storage, and React f
 - View available menu items and their prices.
 - Add menu items through the API.
 - Update menu item availability.
+- Select a table number when placing an order.
 - Place orders containing multiple menu items.
 - Calculate order totals using database prices.
 - View order details, quantities, and subtotals.
+- Display table numbers on kitchen orders.
 - Display all orders in the kitchen dashboard.
 - Update order status from `Received` to `Cooking` to `Served`.
 - Validate order quantities and reject duplicate menu items.
@@ -33,6 +35,38 @@ The project uses Flask for the backend, SQLite for database storage, and React f
 | uv | Python dependency management |
 | Git and GitHub | Version control |
 
+## Project Screenshots
+
+### 1. Customer Menu
+
+Customers can browse dishes, select quantities, choose a table number, and view their order total.
+
+![Customer Menu](project_docs/screenshots/customer-menu.png)
+
+### 2. Order Confirmation
+
+After placing an order, the customer sees the order confirmation, table number, and total amount.
+
+![Order Confirmation](project_docs/screenshots/order-confirmation.png)
+
+### 3. Kitchen Dashboard — Received
+
+New orders appear in the Received column for kitchen staff to process.
+
+![Received Order](project_docs/screenshots/order-received.png)
+
+### 4. Kitchen Dashboard — Cooking
+
+Kitchen staff can move an order to Cooking when preparation begins.
+
+![Cooking Order](project_docs/screenshots/order-cooking.png)
+
+### 5. Kitchen Dashboard — Served
+
+After preparation, the order status can be updated to Served.
+
+![Served Order](project_docs/screenshots/order-served.png)
+
 ## Project Structure
 
 ```text
@@ -48,13 +82,19 @@ kitchen_router/
 │   ├── tests/
 │   │   └── test_api.py
 │   ├── pyproject.toml
-│   ├── uv.lock
-│   └── .python-version
+│   └── uv.lock
 ├── frontend/
 │   ├── src/
 │   ├── package.json
 │   └── ...
-├── .gitignore
+├── project_docs/
+│   └── screenshots/
+│       ├── customer-menu.png
+│       ├── order-confirmation.png
+│       ├── order-received.png
+│       ├── order-cooking.png
+│       └── order-served.png
+├── API_DOCUMENTATION.md
 └── README.md
 ```
 
@@ -69,14 +109,14 @@ Install the following:
 
 ## Setup and Installation
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Siddartha-143/nexturn_miniproject.git
 cd nexturn_miniproject
 ```
 
-### 2. Start the backend
+### 2. Start the Backend
 
 Open a terminal in the project root:
 
@@ -90,7 +130,7 @@ The backend runs at `http://127.0.0.1:5000`.
 
 The application initializes the SQLite database when it starts.
 
-### 3. Start the frontend
+### 3. Start the Frontend
 
 Open a second terminal in the project root:
 
@@ -111,14 +151,15 @@ Keep both terminals running while using the application.
 1. Open the frontend in your browser.
 2. Browse the available menu items.
 3. Select quantities using the plus and minus buttons.
-4. Review the order total.
-5. Place the order.
+4. Choose a table number.
+5. Review the order total.
+6. Place the order and view the confirmation.
 
 ### Kitchen Dashboard
 
 1. Open the Kitchen Dashboard from the navigation.
 2. View orders grouped by `Received`, `Cooking`, and `Served`.
-3. Review each order's items, quantities, and total.
+3. Review each order's table number, items, quantities, and total.
 4. Update the status as the order progresses.
 
 ## API Endpoints
@@ -155,6 +196,7 @@ Base URL: `http://127.0.0.1:5000/api`
 
 ```json
 {
+  "table_number": 6,
   "items": [
     {
       "menu_item_id": 1,
@@ -194,14 +236,14 @@ Run the backend tests from the `backend` directory:
 uv run pytest -v
 ```
 
-The current test suite covers menu creation, active menu retrieval, order totals, unavailable items, order status progression, menu availability, zero quantities, and duplicate menu items.
+The current test suite contains 10 tests covering menu creation, active menu retrieval, order totals, unavailable items, order status progression, menu availability, invalid quantities, duplicate menu items, missing order items, and invalid JSON.
 
 ## Database
 
 The application uses SQLite with three tables:
 
 - `menu_items`: stores menu item names, prices, categories, and availability.
-- `orders`: stores order totals and statuses.
+- `orders`: stores order totals, statuses, and table numbers.
 - `order_items`: stores the menu items and quantities associated with each order.
 
 The local database is generated by the application and should not be committed to Git.
@@ -210,13 +252,7 @@ The local database is generated by the application and should not be committed t
 
 Git and GitHub are used to track project changes. Commits use descriptive messages to make the development history easier to understand.
 
-Example:
-
-```bash
-git add README.md
-git commit -m "docs: improve project setup instructions"
-git push origin main
-```
+GitHub Repository: https://github.com/Siddartha-143/nexturn_miniproject
 
 ## Future Improvements
 
